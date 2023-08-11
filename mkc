@@ -1,0 +1,21 @@
+#!/bin/bash
+file=$1
+editor=$EDITOR
+
+#Check if file name is provided
+if [ ! $file ]; then
+    echo "Sorry, filename needed. Try again."
+    exit 1
+else
+    touch $file
+	echo -e "#include <stdio.h>\n
+int main (void)
+{return 0;
+}" > $file
+	if [ ! $editor ]; then
+	    read -p "Set your default editor: " edtr
+	    export EDITOR=$edtr
+	    editor=$EDITOR
+	fi
+	$editor $file
+fi

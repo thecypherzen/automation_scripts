@@ -1,0 +1,34 @@
+#!/bin/bash
+files=$@
+editor=$EDITOR
+nof=$#
+
+#Check if file name is provided.
+#If at least one file is provided, create it with shebang and set x permission.
+#If no default editor, prompt user to set
+
+if [[ ! $1 ]]; then
+    echo "Sorry, at least 1 filename needed. Try again."
+    exit 1
+else
+    for file in $files;  do
+	touch $file
+	echo "#!/bin/bash" > $file
+	chmod 744 $file
+    done
+
+    if [[ $nof -eq 1 ]]; then
+	echo "1 script created."
+    else
+	echo "$nof scripts created."
+    fi
+
+    sleep .5
+
+    if [ ! $editor ]; then
+	read -p "Set your default editor: " EDITOR
+	export EDITOR
+	editor=$EDITOR
+    fi
+        $editor $1
+fi
