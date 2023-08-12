@@ -1,2 +1,13 @@
 #!/bin/bash
-gcc -Wall -Werror -Wextra -pedantic -std=gnu89 -o $2 $1
+in=$1 #source file
+out=$2 #output file name
+
+if [[ ! $in && ! $out ]]; then
+    echo "No specified source file provided"
+    exit 1
+
+elif [[ $in && ! $out ]]; then
+    out=$(echo $in | rev | cut -d '.' -f2 | rev).x
+fi
+
+gcc -Wall -Werror -Wextra -pedantic -std=gnu89 -o $out $in

@@ -8,28 +8,25 @@ vfound=$(ls -a | sed -En '/[~#]$/p' | wc -l)
 
 #if no matching file is found
 if [ $vfound -eq 0 ]; then
-    echo "No files terminating with '~' or '#' in directory"
-    echo "exiting..."
-    sleep 1
+    echo -e "No files terminating with '~' or '#' in directory\n"
 else
     # confirm delete intention
-    echo -e "\nFound $vfound files terminating with '~' or '#'"
-    read -n1 -p "PROCEED TO DELETE THEM ALL? (y/n): " vans
-    if [ $vans == 'y' ]; then
-	echo $'\n'"DELETING FILES.."
-	sleep 1
+    echo -e "\nFound $vfound file(s) terminating with '~' or '#'"
+    read -n1 -p "PROCEED TO DELETE THEM ALL? [y/n]: " vans
+
+    #if response is yes, delete else terminate
+    if [ $vans == 'y' -o $vans == 'Y' ]; then
+	echo $'\n'"Deleting $vfound file(s) ..."
+	sleep .5
+
 	for vfile in $vfiles; do
 	    rm $vfile
 	done
-	echo "DELETE COMPLETE"
-	sleep 1
-	echo "exiting..."
-    elif [ $vans == 'n' ]; then
-    echo -e "\nNoted. Aborting delete..."
-    sleep 1
+	echo -e "Done\n"
+
+    elif [ $vans == 'n' -o $vans == 'N' ]; then
+	echo -e "\nNoted. Delete aborted ...\n"
     else
-	echo "Unknown response"
-	exit 1
+	echo -e "\nUnknown response, try again.\n"
     fi
 fi
-
