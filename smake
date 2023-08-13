@@ -3,14 +3,9 @@ files=$@
 editor=$EDITOR
 nof=$#
 
-#Check if file name is provided.
-#If at least one file is provided, create it with shebang and set x permission.
-#If no default editor, prompt user to set
-
-if [[ ! $1 ]]; then
-    echo "Sorry, at least 1 filename needed. Try again."
-    exit 1
-else
+#functions
+fmake()
+{
     for file in $files;  do
 	touch $file
 	echo "#!/bin/bash" > $file
@@ -24,11 +19,21 @@ else
     fi
 
     sleep .5
+}
 
+#Check if file name is provided.
+#If at least one file is provided, create it with shebang and set x permission.
+#If no default editor, prompt user to set
+
+if [[ ! $1 ]]; then
+    echo "Sorry, at least 1 filename needed. Try again."
+    exit 1
+else
+    fmake
     if [ ! $editor ]; then
 	read -p "Set your default editor: " EDITOR
 	export EDITOR
 	editor=$EDITOR
     fi
-        $editor $1
+    $editor $1
 fi

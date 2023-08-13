@@ -1,17 +1,12 @@
 #!/bin/bash
-files=$@
-editor=$EDITOR
-nof=$#
+vfiles=$@
+veditor=$EDITOR
+vnof=$#
 
-#Check if file name is provided.
-#If at least one file is provided, create it with shebang and set x permission.
-#If no default editor, prompt user to set
-
-if [[ ! $1 ]]; then
-    echo "Sorry, at least 1 filename needed. Try again."
-    exit 1
-else
-    for file in $files;  do
+#functions
+fmakec()
+{
+    for file in $vfiles;  do
 	touch $file
 	echo -e "#include <stdio.h>\n
 /**
@@ -25,19 +20,30 @@ int main(void)
 {return (0);
 }" > $file
     done
-
-    if [[ $nof -eq 1 ]]; then
+    if [[ $vnof -eq 1 ]]; then
 	echo "1 C file created."
     else
-	echo "$nof C files created."
+	echo "$vnof C files created."
     fi
+}
 
+fopenc()
+{
+}
+
+#Check if file name is provided.
+#If at least one file is provided, create it with shebang and set x permission.
+#If no default editor, prompt user to set
+
+if [[ ! $1 ]]; then
+    echo "Sorry, at least 1 filename needed. Try again."
+else
+    fmakec
     sleep .5
-
-    if [ ! $editor ]; then
+    if [ ! $veditor ]; then
 	read -p "Set your default editor: " EDITOR
 	export EDITOR
-	editor=$EDITOR
+	veditor=$EDITOR
     fi
-        $editor $1
+        $veditor $1
 fi
