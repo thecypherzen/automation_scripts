@@ -8,7 +8,8 @@ fmakec()
 {
     for file in $vfiles;  do
 	touch $file
-	echo -e "#include <stdio.h>\n
+	echo -e "#include \"main.h\"
+#include <stdio.h>
 /**
  * main - Entry point
  *
@@ -27,10 +28,6 @@ int main(void)
     fi
 }
 
-fopenc()
-{
-}
-
 #Check if file name is provided.
 #If at least one file is provided, create it with shebang and set x permission.
 #If no default editor, prompt user to set
@@ -39,7 +36,7 @@ if [[ ! $1 ]]; then
     echo "Sorry, at least 1 filename needed. Try again."
 else
     fmakec
-    sleep .5
+    sleep .3
     if [ ! $veditor ]; then
 	read -p "Set your default editor: " EDITOR
 	export EDITOR
