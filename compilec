@@ -1,13 +1,45 @@
 #!/bin/bash
-in=$1 #source file
-out=$2 #output file name
 
-if [[ ! $in && ! $out ]]; then
-    echo "No specified source file provided"
-    exit 1
+# - - - - - - - - - - - - - - - - -  - -  - - - - - - - - - - - - - - - - - - ---#
+# A script that compiles single or multiple c files into one object.  - - - - - -#
+# If no argument is supplied, user is informed and program exits.  - - - - - - - #
+# If only one argument is passed, it is compiled and the output is saved with the#
+# same filename, but ending with the extension .x  - - - - - - - - - - - -  - - -#
+# If more than one file is supplied, the last file will be used as the output - -#
+#
+# VARIABLES  - - - - - - - - - - - - - - - - - - - -  - - - - -  - - - - - -  - -#
+# @args: an array of all arguments    - - - - - - -- - - - - - - - - - - - -  - -#
+# @args_num: total number of arguments   - - - - - - - - - - - - - - - - - - - - #
+# @ncf: total number of arguments(files) to be compiled   - - - - - - - - - - - -#
+# @out: output filename     - - - - - - - - - - - - - - - - - - - - - - - - - - -#
+# @files: list of all files (filenames of) to be compiled  - - - - - - - - - - - #
+# @list: a string of all files (filenames of) to be compiled - - - - - - - - - - #
+# - - - - - - - - - - - - - -  - -  - - - - - - -  - - - - - - - - - - - - -  - -#
 
-elif [[ $in && ! $out ]]; then
-    out=$(echo $in | rev | cut -d '.' -f2 | rev).x
+
+#get basic variables
+args=("$@") #source file
+args_num=${#args[@]}
+ncf=$(($args_num - 1 )) #number of files to be compiled
+
+
+
+if [[ ! $args ]]; then
+    echo "At least one source file required"
+
+elif [[ $args_num -eq 1 ]]; then
+    out=$(echo $1 | rev | cut -d '.' -f2 | rev).x
+    gcc -Wall -Werror -Wextra -pedantic -std=gnu89 -o $out ${args[0]}
+
+else
+    out=${args[@]:$ncf:$args_num} #output filename
+    files=${args[@]:0:$ncf} #files to be compiled
+    list="" #append first arg to list
+
+    for file in $files; do
+	list+=" $file"
+    done
+
+    gcc -Wall -Werror -Wextra -pedantic -std=gnu89 $list -o $out
+
 fi
-
-gcc -Wall -Werror -Wextra -pedantic -std=gnu89 -o $out $in
