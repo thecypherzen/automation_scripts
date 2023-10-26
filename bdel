@@ -20,7 +20,7 @@ else
 	sleep .5
 
 	for vfile in $vfiles; do
-	    rm $vfile
+	    rm -f $vfile
 	done
 	echo -e "Done\n"
 

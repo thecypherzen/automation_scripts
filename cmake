@@ -9,12 +9,10 @@ fmakec()
     for file in $vfiles;  do
 	touch $file
 	echo -e "#include \"main.h\"
-#include <stdio.h>
+#include <stdio.h>\n
 /**
  * main - Entry point
- *
  * Description goes here
- *
  * Return: 0 always
  */
 int main(void)
