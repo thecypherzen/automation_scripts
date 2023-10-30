@@ -3,8 +3,8 @@
 if (( $# == 0 )); then
     echo -e "At least one filename required"
 else
-    git add $@
-    read -p "commit message: " msg
-    git commit -m "$msg"
+    git add $@ &&
+    read -p "commit message: " msg &&
+    git commit -m "$msg" &&
     git push
 fi
