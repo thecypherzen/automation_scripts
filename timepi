@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# executes a command (an executable) and reports some data
+# assumes that the file is not an existing bash command
+
+fn=$#
+
+if [[ $fn -ne 1 ]]; then
+	echo "usage timepi /path/to/file"
+	exit 1
+else
+	/usr/bin/time --format "\n======= $1 SUMMARY =======\nreal:\t\t%e(s)\nuser:\t\t%U(s)\nsystem:\t\t%S(s)"  --quiet $1
+fi

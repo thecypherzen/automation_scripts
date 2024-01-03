@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+# define `trash` and `destination` paths
+trash="/home/$USER/.trash"
+dest="$PWD"
+
+# check if no arg is provided. Exit if so
+if (( $# == 0 )); then
+	>&2 echo "[ERROR]: restore: missing argument"
+	exit 1
+fi
+
+for name in $@; do
+	# check if arg is a proper path through trash
+	# if so, treat arg as is, else get real path to arg
+	temp="$(echo $name | grep -wc '.trash')"
+
+	if [[ $temp == '0' ]]; then
+		file="$trash/$(basename $name)"
+	else
+		# if realpath fails (if file doesn't exist on system)
+		# print error message to stderr and skip the file
+		file="$(realpath $name 2>'.tmp')"
+		ret="$?"
+		if (( $ret != 0 )); then
+			res="$(cat .tmp | cut -d ':' -f 2- && rm -f '.tmp')"
+			echo "[ERROR]: $res" | tr -s " " >&2
+			continue
+		fi
+		if [ -f '.tmp' ]; then
+			rm -f '.tmp'
+		fi
+	fi
+
+	# if file in trash then move else print error
+	if [ ! -e $file ]; then
+		>&2 echo "[ERROR]: $file not in trash"
+	else
+		mv "$file" $dest
+	fi
+done

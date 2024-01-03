@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+alias
+
+if (( $# == 0 )); then
+	>&2 echo -e "rm: missing operand\nTry 'rm --help' for more information."
+	exit 1
+fi
+
+
+for file in $@; do
+	if [ -d $file ]; then
+		if [ ! -s $file ]; then
+			rmdir $file
+		else
+			rm -rf $file
+		fi
+	else
+		rm -f $file
+	fi
+done

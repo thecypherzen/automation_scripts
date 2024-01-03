@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# converts a single python module into an executable
+# requires at most one cmd line argument
+# 	raises err and exits with status 1 if args != 1 exactly
+
+
+if [[ $# -ne 1 ]]; then
+	echo "one arg required"
+	exit 1
+else
+	fn=$(echo $1 | rev | cut -d "." -f2- | rev)
+	pyinstaller -s -F $1 --distpath "./" --log-level FATAL
+fi
+
+# ------------------- USED FLAGS FOR REFERENCE ------------------- #
+# -s, --strip: Apply a symbol-table strip to the executable and
+#		shared libs (not recommended for Windows)
+#
+# -F, --onefile: Create a one-file bundled executable.
+# --distpath DIR: Where to put the bundled app (default: ./dist)
+# --log-level LEVEL: Amount of detail in build-time
+#		console messages. LEVEL may be one of TRACE, DEBUG, INFO,
+#		WARN, DEPRECATION, ERROR, FATAL (default: INFO).
+#		Also settable via and overrides the PYI_LOG_LEVEL
+#		environment variable.
+# ----------------------------------------------------------------- #
