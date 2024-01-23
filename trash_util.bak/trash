@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+# moves files to the ~/.trash directory
+
+# -- global variables -- #
+dest="/home/$USER/.trash"
+table_header=""
+
+
+# -- functions -- #
+
+# draw_table_line - draws table header line
+#+ $1(int): width of the line
+#+ Return: void
+draw_table_line()
+{
+	for ((i = 1; i <= "$1"; i++)); do
+		table_header+='-'
+	done
+}
+
+
+# char_padding - pads table_header fields with specified char
+#+ $1(int): number of chars to pad
+#+ $2(int): the char to use for padding
+#+ Return: void
+char_padding()
+{
+	for ((i = 1; i <= $1; i++)); do
+		table_header+="$2"
+	done
+}
+
+
+# write_table_fields - writes table header fields
+#+ $1: first filed
+#+ $2: second field
+#+ Return: void
+write_table_fields()
+{
+	table_header+="\n$1"
+	char_padding "27"  "$3"
+	table_header+="$2\n"
+}
+
+# create_trashlog - creates the trashlog file
+#+ $1: width of the table
+#+ Return: void
+create_trashlog()
+{
+	draw_table_line "$1"
+	write_table_fields "FILE"  "| LOCATION"  ' '
+	draw_table_line "$1"
+	echo -e "$table_header" > "$dest/.trashlog"
+}
+
+
+# --- MAIN ENTRY --- #
+# if args not supplied, exit with msg
+if (( $# == 0 )); then
+	>&2 echo "trash: missing operand"
+	exit 1
+fi
+
+# else move each file
+for file in $@; do
+	# if file doesn't exist, print message and exit
+	if [ ! -e "$file" ]; then
+		>&2 echo "file '$file' doesn't exist"
+	else
+		# if trash directory doesn't exist:
+		if [[ ! -e "$dest" || ! -d "$dest" ]]; then
+			# create trash
+			mkdir $dest
+			if (( $? != 0 )); then
+				exit 1
+			fi
+			# create trashlog
+			#+ USAGE: create_trashlog <width of table>
+			create_trashlog "80"
+		fi
+
+		# set log info
+		pathfrom="$(dirname "$(realpath $file)")"
+		loggr="/home/maverix/automation_scripts/trash_logr"
+
+		# if file already exists in trash, rename it
+		fn="$(basename $file)"
+		tempfile="$dest/$fn"
+		new_fn="$tempfile.old"
+		if [ -e "$tempfile" ]; then
+			while [[ -e "$new_fn" ]]; do
+				new_fn+=".old"
+			done
+			mv "$tempfile" "$new_fn"
+			"$loggr" -u "$fn" "$(basename $new_fn)"
+		fi
+
+		# add file to log
+		"$loggr" -a "$fn" "$pathfrom"
+
+		# move file to trash
+		mv $file $dest
+	fi
+done

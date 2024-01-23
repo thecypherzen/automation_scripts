@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+
+# -- global variables -- #
+trash="$(realpath ~/.trash)"
+trash_log="$trash/.trashlog"
+str_to_log=""
+
+# -- functions -- #
+
+# stringify_item - parses arguments passed into a string
+#+ formatted with spaces as matches the logfile
+#+ saves the string in global variable 'str_to_log'
+stringify_item()
+{
+	# define max spaces & adjust based on length of arg1
+	space_max=30
+	entry="$1"
+	space_max=$(($space_max - ${#entry}))
+
+	# add tab spaces matching remaining spaces
+	for ((i = $space_max; i > 0; i -= 1)); do
+		entry+=" "
+	done
+
+	# add second argument with a preceeding tabspace
+	#+ and save to global var.
+	entry+=" | $2"
+	str_to_log="$(echo -e "$entry")"
+}
+
+# log_add - adds a new entry to the trash log table
+log_add()
+{
+	match="false"
+	log_item="$(echo "$str_to_log" | tr -d ' '| cut -d '|' -f1)"
+	log_path="$(echo "$str_to_log" | tr -d ' '| cut -d '|' -f2)"
+	echo "$str_to_log" >> $trash_log
+}
+
+
+# log_update - updates the name of an existing log table file
+#+ it doesn't change the location associated with the filename
+#+ the new name is pass by the 'trash' program as an argument
+log_update()
+{
+	max_n="$(cat "$trash_log" | wc -l)"
+	match="false"
+	new_log=""
+	while read -r line; do
+		fn="$(echo "$line" | tr -d ' ' | cut -d '|' -f1 )"
+		fpath="$(echo "$line" | tr -d ' ' | cut -d '|' -f2)"
+		if [[ "$fn" == "$1" ]]; then
+			stringify_item "$2" "$fpath"
+			new_log+="$str_to_log\n"
+		else
+			new_log+="$line\n"
+		fi
+	done < "$trash_log"
+	echo -en "$new_log" > "$trash_log"
+}
+
+
+# log_delete - deletes a log entry from 'trashlog'
+log_delete()
+{
+	new_log=""
+	while read -r line; do
+		fn="$(echo "$line" | tr -d ' ' | cut -d '|' -f1 )"
+		if [[ "$fn" != "$1" ]]; then
+			stringify_item "$2" "$fpath"
+			new_log+="$line\n"
+		fi
+	done < "$trash_log"
+	echo -en "$new_log" > "$trash_log"
+}
+
+
+
+# -- MAIN ENTRY -- #
+# recognized flags:
+# 	-a or --add: adds a new entry to log
+# 	-d or --delete: removes an entry from log
+# 	-u or --update: updates an entry's value in log
+
+while (( "$#" > 0 )); do
+	case "$1" in
+		# to add to trashlog
+		'-a'|'--add')
+			shift
+			stringify_item "$@"
+			log_add
+			exit
+			;;
+
+		# to delete from trashlog
+		'-d'|'--delete')
+			shift
+			if [[ "$1" == -* ]]; then
+				echo "invalid argument passed" >&2
+				exit 1
+			fi
+			log_delete "$1"
+			exit
+			;;
+
+		# to update trashlog item file name
+		'-u'|'--update')
+			shift
+			if [[ "$1" == -* || "$2" == -* ]]; then
+				echo "at least one invalid argument passed" >&2
+				exit 1
+			fi
+			log_update "$@"
+			exit
+			;;
+		*)
+			echo "arg: $1"
+			shift
+			;;
+	esac
+done

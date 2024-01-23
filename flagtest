@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+
+while getopts "a:b:c:" flag; do
+	case "$flag" in
+		'a')
+			echo "flag a is passed"
+			echo optarg: "$OPTARG" optind: $OPTIND
+			;;
+		'b')
+			echo "flag b is passed"
+			echo optarg: "$OPTARG" optind: $OPTIND
+			;;
+		'c')
+			echo "flag c is passed"
+			echo optarg: "$OPTARG" optind: $OPTIND
+			;;
+		\?)
+			echo "unknown flag passed"
+			echo optarg: "$OPTARG" optind: $OPTIND
+			;;
+	esac
+done

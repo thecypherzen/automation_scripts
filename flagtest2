@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+while (( "$#" > 0 )); do
+	echo -e arg: "$1\t" total: "$#"
+	shift
+done
