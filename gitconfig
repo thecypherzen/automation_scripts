@@ -1,3 +1,4 @@
 #!/bin/bash
 git config --global user.name "William Inyam"
 git config --global user.email "sw.inyam@outlook.com"
+git config --global core.editor "emacs"
