@@ -1,45 +1,98 @@
 #!/bin/bash
-files=$@
-editor=$EDITOR
-shebang=$SHEBANG
-nof=$#
+# A bash script that creates a script based on the flag given
+#+ the handled flags are for 'python', 'bash' and 'ruby'
+#+ could be extended to handle more scripts
+
+
+declare -a files
+declare type
+declare shebang
+declare last_file
+editor="$EDITOR"
+she_base="#!/usr/bin/env"
+nof=0
+err=0
 
 #functions
-fmake()
+supported_type()
 {
-    for file in $files;  do
-	touch $file
-	echo "$(echo $shebang)" > $file
-	chmod 744 $file
+    case "$1" in
+	'-b'|'--bash'|'-p'|'--python'|'-r'|'--ruby')
+	    return 0
+	    ;;
+	*)
+	    return 1
+	    ;;
+    esac
+}
+
+make_script()
+{
+    for script in "$@";  do
+	if ! supported_type "$script"; then
+	    touch "$script"
+	    echo "$shebang" > "$script"
+	    chmod 744 "$script"
+	    (( nof++ ))
+	    last_file="$script"
+	    shift
+	else
+	    break
+	fi
     done
 
     if [[ $nof -eq 1 ]]; then
-	echo "1 script created."
+	echo "1 $type script created."
     else
-	echo "$nof scripts created."
+	echo "$nof $type scripts created."
     fi
-
-    sleep .1
 }
 
-#Check if file name is provided.
-#If at least one file is provided, create it with shebang and set x permission.
-#If no default editor, prompt user to set
+# MAIN PROGRAM
+#+ Check if file name is provided.
+#+ If at least one file is provided, create it with shebang and set x permission.
+#+ If no default editor, prompt user to set
 
-if [[ ! $1 ]]; then
-    echo "Sorry, at least 1 filename needed. Try again."
-    exit 1
+if [[ "$#" -eq 0 ]]; then
+    1>&2 echo "Sorry, at least 1 filename needed. Try again."
 else
-    if [[ ! $shebang ]]; then
-	read -p "Specify your shebang: " SHEBANG
-	export SHEBANG
-	shebang=$SHEBANG
+    while (( "$#" )); do
+	case "$1" in
+	    '-p'|'--python')
+		shift
+		shebang="$(printf "%s %s" "$she_base" "python")"
+		type="python"
+		;;
+	    '-b' |'--bash')
+		shift
+		shebang="$(printf "%s %s" "$she_base" "bash")"
+		type="bash"
+		;;
+	    '-r'|'--ruby')
+		shift
+		shebang="$(printf "%s %s" "$she_base" "ruby")"
+		type="ruby"
+		;;
+	    *)
+		msg="Usage: smake <-r|--ruby,-p|--python,-b|--bash>"
+		msg+="<file[1,2,..]>"
+		1>&2 echo "$msg"
+		err=1
+		break
+		;;
+	esac
+	make_script "$@"
+	shift "$nof"
+	nof=0
+    done
+
+    sleep .2
+    if [[ "$err" -eq 0 ]]; then
+	if [ ! "$editor" ]; then
+	    read -p "Set your default editor: " EDITOR
+	    export EDITOR
+	    editor="$EDITOR"
+	fi
+	"$editor" "$last_file"
     fi
-    fmake
-    if [ ! $editor ]; then
-	read -p "Set your default editor: " EDITOR
-	export EDITOR
-	editor=$EDITOR
-    fi
-    $editor $1
 fi
