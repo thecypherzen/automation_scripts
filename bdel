@@ -6,6 +6,7 @@
 vfiles=$(ls -a | sed -En '/[~#]$/p')
 vfound=$(ls -a | sed -En '/[~#]$/p' | wc -l)
 
+
 #if no matching file is found
 if [ $vfound -eq 0 ]; then
     echo -e "No files terminating with '~' or '#' in directory\n"
@@ -20,7 +21,11 @@ else
 	sleep .5
 
 	for vfile in $vfiles; do
-	    rm -f $vfile
+	    if (("$MAX_TTL")); then
+		rmf $vfile
+	    else
+		rm -f $vfile
+	    fi
 	done
 	echo -e "Done\n"
 
