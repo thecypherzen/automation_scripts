@@ -9,7 +9,7 @@ declare type
 declare shebang
 declare last_file
 editor="$EDITOR"
-she_base="#!/usr/bin/env"
+she_base="#!/usr/bin/"
 nof=0
 err=0
 
@@ -59,22 +59,27 @@ else
     while (( "$#" )); do
 	case "$1" in
 	    '-p'|'--python')
-		shift
-		shebang="$(printf "%s %s" "$she_base" "python")"
-		type="python"
+			shift
+			shebang="$(printf "%s%s" "$she_base" "python3")"
+			type="python"
 		;;
 	    '-b' |'--bash')
-		shift
-		shebang="$(printf "%s %s" "$she_base" "bash")"
-		type="bash"
+			shift
+			shebang="$(printf "%s%s" "$she_base" "bash")"
+			type="bash"
 		;;
 	    '-r'|'--ruby')
-		shift
-		shebang="$(printf "%s %s" "$she_base" "ruby")"
-		type="ruby"
+			shift
+			shebang="$(printf "%s%s" "$she_base" "ruby")"
+			type="ruby"
+		;;
+		'-j'|'-js'|'--javascript')
+			shift
+			shebang="$(printf "%s%s" "$she_base" "node")"
+			type="javascript"
 		;;
 	    *)
-		msg="Usage: smake <-r|--ruby,-p|--python,-b|--bash>"
+		msg="Usage: smake <-r|--ruby,-p|--python,-b|--bash>,-j|-js|--javascript"
 		msg+="<file[1,2,..]>"
 		1>&2 echo "$msg"
 		err=1
