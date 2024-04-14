@@ -9,6 +9,10 @@ granting x permissions, and the likes.
 I wrote these scripts to take the redundancy and unecessary iteration
 off us, so we can focus on learning. You should try them out.
 
+## Key Takeaway ##
+You would need to create an alias that points to the location of each script on your machine to make it more
+useful. I'd recommend doing so in your `.bashrc` file.
+
 ## Technologies ##
 - Scripts written in GNU bash, version 5.0.17(1)
 - Tested on Ubuntu 20.04.6 LTS
